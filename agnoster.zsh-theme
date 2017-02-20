@@ -122,7 +122,6 @@ prompt_git() {
   local ref repo_path mode untracked staged unstaged uncommited symbols
 
 
-  # if [ -n "$repo_path" ]; then
   if [[ -n "$git_info" ]]; then
     # get number of files from git status
     read untracked staged unstaged <<<$(\
@@ -132,7 +131,9 @@ prompt_git() {
            /^.[MD]/ {us++}
            /^\?\?/ {u++}
            END {print u,s,us}')
-    uncommited="${unstaged}U ${staged}S ${untracked}?"
+    if [[ "$unstaged" -ne "0" ]]; then uncommited="${unstaged}U "; fi
+    if [[ "$staged" -ne "0" ]]; then uncommited="$uncommited${staged}I "; fi
+    if [[ "$untracked" -ne "0" ]]; then uncommited="$uncommited${untracked}? "; fi
 
 
     # TODO: add this info from special section
@@ -147,8 +148,7 @@ prompt_git() {
     # fi
 
     ${_PROMPT}_segment $1 $2 #  $color $PRIMARY_FG
-    print -Pn " ${uncommited}" '${(e)git_info[count]}${(e)git_info[ref]}${(e)git_info[status]} '
-    # print -Pn " $uncommited ${ref/refs\/heads\//$BRANCH }$symbols${mode} " # " $ref "
+    print -Pn " ${uncommited}"'${(e)git_info[count]}${(e)git_info[ref]}${(e)git_info[status]} '
   fi
 }
 
