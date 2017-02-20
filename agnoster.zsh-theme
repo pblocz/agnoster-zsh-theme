@@ -153,7 +153,7 @@ prompt_git() {
 
     ${_PROMPT}_segment $1 $2 #  $color $PRIMARY_FG
     print -Pn " ${uncommited}"'${(e)git_info[count]}${(e)git_info[ref]}${(e)git_info[status]}'
-    print -n "%F{$WARNING_FG}${(e)git_info[warning]}%f"
+    print -n "%F{$WARNING_FG}${(e)git_info[warning]}%f "
   fi
 }
 
