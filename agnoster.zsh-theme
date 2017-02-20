@@ -37,6 +37,10 @@ SECONDARY_BG=black
 OPTIONAL_FG=default # white
 OPTIONAL_BG=15 # light grey
 
+WARNING_FG=226 # yellow
+CROSS_FG=red
+GEAR_FG=blue
+
 
 # Characters {{{2
 SEGMENT_SEPARATOR="\ue0b0"
@@ -46,7 +50,7 @@ ALT_REVSEGMENT_SEPARATOR="\ue0b3"
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
 DETACHED="\u27a6"
-CROSS="\u2718"
+CROSS="\u2716"
 LIGHTNING="\u26a1"
 GEAR="\u2699"
 
@@ -127,12 +131,12 @@ prompt_git() {
     read untracked staged unstaged <<<$(\
       git status --porcelain |\
       awk 'BEGIN {u=0;s=0;us=0}
-           /^[MARC]/ {s++}
+           /^[MARCD]/ {s++}
            /^.[MD]/ {us++}
            /^\?\?/ {u++}
            END {print u,s,us}')
     if [[ "$unstaged" -ne "0" ]]; then uncommited="${unstaged}U "; fi
-    if [[ "$staged" -ne "0" ]]; then uncommited="$uncommited${staged}I "; fi
+    if [[ "$staged" -ne "0" ]]; then uncommited="$uncommited${staged}S "; fi
     if [[ "$untracked" -ne "0" ]]; then uncommited="$uncommited${untracked}? "; fi
 
 
@@ -148,7 +152,7 @@ prompt_git() {
     # fi
 
     ${_PROMPT}_segment $1 $2 #  $color $PRIMARY_FG
-    print -Pn " ${uncommited}"'${(e)git_info[count]}${(e)git_info[ref]}${(e)git_info[status]} '
+    print -Pn " ${uncommited}"'${(e)git_info[count]}${(e)git_info[ref]}${(e)git_info[status]}${(e)git_info[warning]}'
   fi
 }
 
@@ -175,9 +179,9 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS"
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}$GEAR"
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{$CROSS_FG}%}$CROSS"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{$WARNING_FG}%}$LIGHTNING"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{$GEAR_FG}%}$GEAR"
 
   [[ -n "$symbols" ]] && ${_PROMPT}_segment $1 $2 " $symbols "
 }
@@ -232,8 +236,8 @@ prompt_agnoster_setup() {
   zstyle ':prezto:module:git:status:ignore' submodules 'all'
   zstyle ':prezto:module:git:info:action' format '⁝ %s' # %s
   zstyle ':prezto:module:git:info:added' format ' ✚' # %a
-  zstyle ':prezto:module:git:info:ahead' format ' ⬆' # %A
-  zstyle ':prezto:module:git:info:behind' format ' ⬇' # %B
+  zstyle ':prezto:module:git:info:ahead' format '⬆' # %A
+  zstyle ':prezto:module:git:info:behind' format '⬇' # %B
   zstyle ':prezto:module:git:info:branch' format ' %b' # %b
   zstyle ':prezto:module:git:info:commit' format ' %.7c' # %c
   zstyle ':prezto:module:git:info:remote' format '➦ %R' # %R
@@ -247,7 +251,8 @@ prompt_agnoster_setup() {
   zstyle ':prezto:module:git:info:untracked' format ' ?' # %u
   zstyle ':prezto:module:git:info:keys' format \
     'ref' '$(coalesce  "%b" "%c" "%p" )' \
-    'status' '%s%A%B%S%a%d%m%r%U%u' # deleted: %D
+    'status' '%s%A%B%U' \
+    'warning' '$([[ -n "%D%S%a%d%m%r%U%u" ]] && { print -Pn " %F{$WARNING_FG}\u2757%f" })' # another \u2762
 }
 
 prompt_agnoster_setup "$@"
