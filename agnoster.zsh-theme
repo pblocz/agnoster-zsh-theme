@@ -152,7 +152,8 @@ prompt_git() {
     # fi
 
     ${_PROMPT}_segment $1 $2 #  $color $PRIMARY_FG
-    print -Pn " ${uncommited}"'${(e)git_info[count]}${(e)git_info[ref]}${(e)git_info[status]}${(e)git_info[warning]}'
+    print -Pn " ${uncommited}"'${(e)git_info[count]}${(e)git_info[ref]}${(e)git_info[status]}'
+    print -n "%F{$WARNING_FG}${(e)git_info[warning]}%f"
   fi
 }
 
@@ -252,7 +253,8 @@ prompt_agnoster_setup() {
   zstyle ':prezto:module:git:info:keys' format \
     'ref' '$(coalesce  "%b" "%c" "%p" )' \
     'status' '%s%A%B%U' \
-    'warning' '$([[ -n "%D%S%a%d%m%r%U%u" ]] && { print -Pn " %F{$WARNING_FG}\u2757%f" })' # another \u2762
+    'warning' '$([[ -n "%D%S%a%d%m%r%U%u" ]] && print -Pn " \u2757")' # another \u2762
+  # TODO: when adding %F{color} to warning it break the line wrapping in console
 }
 
 prompt_agnoster_setup "$@"
